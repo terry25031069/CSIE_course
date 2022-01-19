@@ -4,7 +4,7 @@ using namespace std;
 #define S second
 typedef pair<int, int> pii;
 
-int len = 8, ans, maxstatus;
+int len = 15, ans, maxstatus;
 
 struct node{
 	int board[16][16] = {};
@@ -12,8 +12,17 @@ struct node{
 	int step = 0;
 	int hvalue = 0;
 	vector<node>child;
+	
 	bool operator < (const node &b)const{
 		if(step != b.step)return step > b.step;
+	}
+	bool operator == (const node &b)const{
+		for(int i = 0; i < len; i++){
+			for(int j = 0; j < len; j++){
+				if(board[i][j] != b.board[i][j]) return 0;
+			}
+		}
+		return 1;
 	}
 };
 
@@ -90,7 +99,7 @@ int DLS(node a, int limit){
 }
 
 int IDS(node a){
-	for(int limit = 8; limit < 30; limit++){
+	for(int limit = len + 1; limit < 30; limit++){
 		cout << "Current limit is " << limit << endl;
 		int result = DLS(a, limit);
 		maxstatus = limit + 1;
@@ -116,7 +125,7 @@ int BFS(node a){
 	return -1;
 }
 
-int GBFS(node a, int mode){
+int GBFS(node a, int mode = 4){
 	//combine GBFS and Astar in same function
 	//if mode == 3, then GBFS, if mode == 4, then Astar.
 	priority_queue<node> status;
@@ -134,68 +143,43 @@ int GBFS(node a, int mode){
 			i.hvalue += (mode == 4) * i.step;
 			status.push(i);
 		}
-		maxstatus = max(maxstatus, (int)status.size());
+		maxstatus = max(maxstatus, int(status.size()));
 	}
 	return -1;
 }
 
-//int RBFS(node a){
-//	priority_queue<pir, vector<pir>, greater<pir> >status;
-//	node ptmp; ptmp.c = 0, ptmp.st = a;
-//	status.push({mdis(a, goal), ptmp});
-//	visit[khash(a)] = mdis(a, goal);
-//	
-//	while(!status.empty()){
-//		maxstatus = max(maxstatus, (int)status.size());
-//		auto tmp = status.top(); status.pop();
-//		visit.erase(khash(tmp.S.st));
-//		if(khash(tmp.S.st) == khash(goal)) return tmp.S.c;
-//		vector<int> cur_node = tmp.S.st, f_node = tmp.S.f;
-//		pii min_child; min_child.F = 1e9;
-//		if(!f_node.empty()){
-//			for(int i = 0; i < f_node.size(); i++){
-//				if(f_node[i] == 0) tmpcoord = i;
-//			}
-//			for(auto move: op[f_node.size()][tmpcoord]){
-//				vector<int>b = f_node;
-//				swap(b[tmpcoord], b[move]);
-//				if(khash(b) == khash(cur_node)) continue;
-//				if(visit[khash(b)] == 0) visit[khash(b)] = mdis(b, goal) + tmp.S.c + 1;
-//				if(visit[khash(b)] < min_child.F) min_child = {visit[khash(b)], khash(b)};
-//			}
-//			if(status.empty() || status.top().F >= min_child.F){
-//				ptmp.c = tmp.S.c, ptmp.f = tmp.S.f, ptmp.st = rkhash(min_child.S, a.size());
-//				status.push({min_child.F, ptmp});
-//			}
-//		}
-//		min_child.F = 1e9;
-//		for(int i = 0; i < cur_node.size(); i++){
-//			if(cur_node[i] == 0) tmpcoord = i;
-//		}
-//		for(auto move: op[cur_node.size()][tmpcoord]){
-//			vector<int>b = cur_node;
-//			swap(b[tmpcoord], b[move]);
-//			if(khash(b) == khash(cur_node)) continue;
-//			if(visit[khash(b)] == 0) visit[khash(b)] = mdis(b, goal) + tmp.S.c + 1;
-//			if(visit[khash(b)] < min_child.F) min_child = {visit[khash(b)], khash(b)};
-//		}
-//		if(status.empty() || status.top().F >= min_child.F){
-//			ptmp.c = tmp.S.c + 1, ptmp.f = tmp.S.st, ptmp.st = rkhash(min_child.S, a.size());
-//			status.push({min_child.F, ptmp});
-//		}else visit[khash(cur_node)] = min_child.F;
-//	}
-//	return -1;
-//}
+int RBFS(node a){
+	priority_queue<node> status;
+	expand(&a);
+	status.push(a);
+	while(!status.empty()){
+		maxstatus = max(maxstatus, (int)status.size());
+		auto tmp = status.top(); status.pop();
+		if(checkgoal(tmp)){print(tmp.board); maxstatus <<= 1; return 1;}	
+		int mi = 1e9; node min_child;
+		for(auto i: tmp.child){
+			expand(&i);
+			if(i.hvalue == 0) i.hvalue += tmp.hvalue + 1;
+			if(i.hvalue < min_child.hvalue) min_child = i, mi = i.hvalue;
+			i.hvalue = i.step;
+			status.push(i);
+		}
+		if(status.empty() || status.top().hvalue >= min_child.hvalue){
+			expand(&min_child);
+		}
+	}
+	return -1;
+}
 
 int main(){
 	// init
 	int qnum, qtmpr, qtmpc;
 	node start;
-	cout << "Plz enter the number of queen:\n";
 	// main UI
 	while(1){
+		cout << "Plz enter the number of queen:\n";
 		cin >> qnum;
-		if(qnum < 0 || qnum > 8){
+		if(qnum < 0 || qnum > len){
 			cout << "The number of queen is not correct, plz re-enter the number!\n";		
 		}else{
 			int tc;
@@ -219,7 +203,7 @@ int main(){
 				}else if(tc == 3 || tc == 4){
 					ans = GBFS(start, tc);
 				}else{
-					//ans = RBFS(start);
+					ans = RBFS(start);
 				}
 				if(ans >= 0)cout << "Total moves: " << ans << endl;
 				else cout << "The puzzle is not solvable!\n";
@@ -229,3 +213,7 @@ int main(){
 		}
 	}
 }
+/*
+10
+0 0 1 2 2 4 3 10 4 12 5 14 6 9 7 13 8 6 9 3
+*/
