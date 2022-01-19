@@ -76,7 +76,6 @@ void expand(node *a){
 	}
 	if (a->child.empty()) a->hvalue = 0;
 	else {
-		//maybe has bug
 		a->hvalue = len * len - cnt + (!a->hvalue) * 1e9;
 	}
 }
