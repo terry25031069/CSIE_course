@@ -7,6 +7,7 @@
 * 2021/12/01 更新 110 學年度高等演算法期中考
 * 2021/12/02 新增 Exercise 3 hexagram chessboard cpp source code
 * 2021/12/03 將 "advanced_algorithm/高演題目" 改成 "advanced_algorithm/高演作業"
+* 2022/01/20 新增 110 學年度期末考
 
 # Introduction of Artificial Intelligence
 ## Program1
