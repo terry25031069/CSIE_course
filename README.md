@@ -18,10 +18,8 @@
 
 # Algorithm
 * 增加信龍作業的參考答案，但我會跟陳靚說，所以不要想壞壞^^
-<<<<<<< HEAD
 * Visual Studio Community 會無法編譯成功，因為他認不得 Mingw 的 bits/stdc++.h，請將需要的小標頭檔自己 #include 進來（如 iostream, vector, iomanip, ...）
-=======
->>>>>>> 198e35e71cbf2de2f23c000a0a692329e8905c82
+
 
 
 
